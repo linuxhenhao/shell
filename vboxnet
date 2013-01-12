@@ -1,0 +1,14 @@
+#!/bin/bash
+net=$1
+if [ ! $net ];then
+echo "Useage vboxnet [out_put_device]"
+exit
+fi
+function sysctl_check()
+{
+	if [ $(sysctl net.ipv4.ip_forward |grep 1|wc -L ) -eq 0 ]; then
+		sysctl net.ipv4.ip_forward=1;
+	fi
+}
+sysctl_check
+iptables -t nat -A POSTROUTING -o $net -j MASQUERADE 

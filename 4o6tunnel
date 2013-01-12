@@ -1,0 +1,14 @@
+#!/bin/bash
+device=iptun
+#remote_ip=2605:6400:1:fed5:22:167a:7823:bced
+remote_ip=2001:da8:200:900e:0:5efe:3b42:937c
+#local_ip=2001:da8:200:900e:0:tefe:6505:7bb3
+local_ip=2404:f000:5:9d01:ca0a:a9ff:fe46:ce4b
+
+
+if [ ! $(ifconfig $device|wc -L) -eq 0 ];then
+	ip tunnel del $device
+fi
+ip -6  tunnel  add $device mode ipip6  remote $remote_ip local $local_ip
+ip addr add 192.0.0.10/24  $device 
+ip link set dev $device up

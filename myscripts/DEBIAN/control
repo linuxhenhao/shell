@@ -1,0 +1,7 @@
+Package:myscripts 
+Version: 1.0
+Architecture: all
+Maintainer: huangyu
+Priority: optional
+Homepage: http://diwang90.tk
+Description: some of my scripts include 4to6tunnel nutstore gnome-screensaver-command screenshot wicd-sh

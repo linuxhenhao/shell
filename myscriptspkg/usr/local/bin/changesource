@@ -1,0 +1,13 @@
+#!/bin/bash
+source=$1
+if [ "root" != `whoami` ] ;then
+echo "you must run as root."
+exit
+fi
+if [ -f /etc/apt/$source ]; then 
+cp /etc/apt/$source /etc/apt/sources.list
+echo "source changed to $source succesefully!"
+exit
+else 
+	echo "file $source cannot be found in dir /etc/apt."
+fi

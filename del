@@ -1,0 +1,14 @@
+#!/bin/bash
+#author diwang90
+#date 2011-7-24
+#use this program to take place of the "rm" command in linux
+#to safe remove the data
+if [ `whoami` != root ] ; then
+	echo "you should run this program as root"
+	echo "su root.... "
+        USER=sudo;
+	echo "${USER}"
+fi
+#test the .trash dir
+$(USER) test -d ./.trash ||$(USER) mkdir ./.trash 
+$(USER) mv $1 ./.trash

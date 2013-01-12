@@ -1,0 +1,12 @@
+#!/bin/bash
+if=eth0
+ip=59.66.157.102
+nm=255.255.255.0
+gw=59.66.157.1
+if [ ! "id -u" != "0" ];then
+	echo "must be root!"
+	exit 1
+fi
+ifconfig $if $ip netmask $nm
+route add default gw $gw
+4to6tunnel

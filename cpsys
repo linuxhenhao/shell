@@ -1,0 +1,6 @@
+#!/bin/bash
+for i in $(ls /|grep -vE '(dev|mnt|media|lost|proc|run|sys|tmp)');
+do 
+	echo  /$i /mnt/
+	cp -a /$i /mnt/
+done

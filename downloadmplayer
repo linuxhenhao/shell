@@ -1,0 +1,60 @@
+#!/bin/bash
+function download()
+{
+	IFS='
+';
+	j=1;
+	dir=dir$1
+	if [  -d $dir ];then
+		echo "dir $dir exist!"
+	else
+		mkdir $dir
+	fi
+	export http_proxy="http://127.0.0.1:8000"
+	for i in $(cat $1|grep -v \#);
+		do
+			wget --user-agent="Mozilla/6.0 (X11; U; Linux i686; en-US; rv:1.9.0.3) Gecko/2008092416 Firefox/3.0.3" $i -O $dir/$j & 
+		j=$(( $j+1 ));
+		done
+}
+
+function play()
+{
+	IFS='
+';
+	dir=dir$1;
+	mplayer $1.avi;
+
+}
+
+function combination()
+{
+	dir=dir$1;
+	cd $dir;
+	mencoder $(ls ) -o  $filename.avi -oac mp3lame -ovc lavc 
+}
+while getopts 'f:' OPT
+	do 
+		case $OPT in 
+			f)
+			   filename=$OPTARG;
+			   download $filename;	
+			   down="T"
+	while [ $down == "T" ]
+	do
+		if [  $(echo $(pidof wget)|wc -L) -eq 0 ];then
+			   combination $filename
+			   play $filename;
+			   down="F"
+
+		fi
+		sleep 5
+	done
+	break
+			;;
+			*)
+			  echo "Usage: $0 -f filename "
+			  ;;
+	    esac
+	done
+

@@ -1,0 +1,5 @@
+#!/bin/bash
+echo "goagent"
+/opt/goagent/start_proxy.sh  >/dev/null 2>&1 &
+echo "sogou proxy"
+/opt/sogouproxy/sogouproxy  >/dev/null 2>&1 &

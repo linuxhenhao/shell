@@ -1,0 +1,14 @@
+#!/bin/bash
+case $1 in
+	hibernate)
+		echo ON >/sys/kernel/debug/vgaswitcheroo/switch
+		echo success
+		;;
+	thaw)
+		echo OFF >/sys/kernel/debug/vgaswitcheroo/switch
+		echo success
+		;;
+	*)
+		;;
+esac
+

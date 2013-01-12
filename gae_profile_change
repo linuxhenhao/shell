@@ -1,0 +1,66 @@
+#!/bin/bash
+profile='/opt/gappproxy/proxy.ini'
+ip_server="ipdetect.dnspark.com"
+ip_line="address"
+set=$(grep profile\ =  $profile);
+
+function switch()
+{
+	if [ ! $(echo $set |grep ipv6|wc -L) -eq 0 ];then
+#now there is no ipv6 in $set,so ,it's ipv4;change to ipv6
+		echo "<<<switch from ipv4 to ipv6 profile ..."
+		set_protocal google_ipv6
+	else 
+		echo "<<<switch from ipv6 to ipv4 profile ..."
+		set_protocal google_cn
+	fi
+}
+
+function set_protocal()
+{
+	sed -i "s/profile\ =\ .*/profile\ =\ $1/" $profile;
+}
+function statu()
+{
+	if [  $(echo $set|grep ipv6|wc -L) -eq 0 ];then
+		echo "ipv4"
+	else
+		echo "ipv6"
+	fi
+}
+
+function protocal_detect()
+{
+	ip=$(wget -O- $ip_server|grep -i $ip_line|cut -d " " -f3);
+	if [ -z $ip ];then
+		echo get ip error;
+	fi
+	if [  $(echo $ip|grep :|wc -L) -gt 0 ];then
+		echo ipv6;
+	else 
+		echo ipv4;
+	fi
+}
+
+function encode()
+{
+	case $1 in
+		"ipv4")
+			echo google_cn;;
+		"ipv6")
+			echo google_ipv6;;
+			* )
+			echo unkown;;
+	esac
+}
+connect_version=$(protocal_detect);
+profile_version=$(statu);
+echo connect_version $connect_version
+echo profile_version $profile_version
+if [  "$profile_version" = "$connect_version" ];then
+	echo "nothing to do"
+else
+	VAR=$(encode $connect_version);
+	set_protocal $VAR
+	echo ">>>change profile to $VAR ..."
+fi

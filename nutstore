@@ -1,0 +1,2 @@
+#!/bin/sh
+sleep 30 && ~/.nutstore/bin/nutstore-pydaemon.py >/dev/null 2>&1

@@ -1,0 +1,7 @@
+#!/bin/bash
+typeset -u Lcase
+for big in $(ls)
+do
+	mv $big	$(echo $big |tr "[A-Z]" "[a-z]")
+
+done

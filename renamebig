@@ -1,0 +1,13 @@
+#!/bin/bash
+i=1
+rename 's/JPG/jpg/' *.JPG
+
+for file in `find -type f -print` ;
+	do
+		while [ -f $i.jpg ];
+			do 
+				i=$(($i+1));
+			done
+		mv $file $i.jpg
+	done
+		

@@ -1,0 +1,8 @@
+#!/bin/bash
+for i in `du -a|awk '{print $2}'`;
+do
+		echo `md5sum $i`>>~/md5sum;
+done
+	sed -e 's/\.\//\//' ~/md5sum> ~/md5sum1;
+
+

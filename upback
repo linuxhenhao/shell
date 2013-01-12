@@ -1,0 +1,17 @@
+#!/bin/bash
+#This used to backup my system to a squashfs,need to install squashfs-tool
+true=1;
+false=0;
+
+test_env()
+{	
+	if [ -x /usr/bin/mksquashfs ];then
+		return $true
+	else 
+		return $false;
+	fi
+}
+test_env
+if [ $? == 1 ] ; then
+           echo "hello"
+fi

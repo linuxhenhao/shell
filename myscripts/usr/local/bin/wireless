@@ -1,0 +1,82 @@
+#!/bin/bash
+###
+##use this script to connect to wireless
+card=wlan0
+essid="Tsinghua"
+i=1
+
+if [ $(whoami) != "root" ];then
+	echo "should run as root!"
+	exit 0
+fi
+
+function card_stat()
+{
+	if [ $(ifconfig $card |grep -i up|wc -L) -eq 0 ];then
+		ifconfig $card up
+	fi
+}
+function file_end()
+{
+	if [ $(echo $tmp |wc -L) -eq 0 ];then
+		echo "file end!"
+		exit 0;
+	fi
+}
+
+function get_cell()
+{
+	local tmp
+	iwlist $card scan | grep -iE '(cell|essid)'>/tmp/iwlist
+	while [ "$id" != "$essid" ];
+	do
+	tmp=$(sed -n "$i"'p' /tmp/iwlist)
+	echo "tmp=$tmp"
+	file_end
+	cell=$(echo ${tmp#*:})  
+	echo $cell
+	i=$(($i+1))
+	tmp=$(sed -n "$i"'p' /tmp/iwlist )
+	file_end
+	echo "tmp1=$tmp"
+	id=$(echo ${tmp#*\"} )
+	echo "id=$id"
+	id=$(echo ${id%*\"})
+	echo "id2=$id"
+	i=$(($i+1))
+	done
+	return;	
+}
+
+function do_connect()
+{
+	get_cell
+	echo "ready to connect"
+	if [   "$id" == $essid ];then
+	iwconfig $card essid $id ap $cell	
+	fi
+}
+
+function if_connected()
+{
+	echo "in if_connected"
+	if [ ! $(iwconfig $card|grep -i access\ point|grep -vi not|wc -L) -eq 0 ];then
+		echo "connected to essid $id ap $cell"	
+		echo "getting ip"
+		dhclient $card
+		exit 0
+	else 
+		echo "continue connecting "
+	fi
+}
+	
+card_stat
+if [ "$1" != "" ];then
+	essid=$1
+fi
+while  (true) 
+do
+	do_connect
+	sleep 2
+	if_connected
+done

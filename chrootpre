@@ -1,0 +1,22 @@
+while getopts 'd:' opt
+do
+	case $opt in
+		d)	#echo $OPTARG
+			chrootdir=$OPTARG
+		;;
+		*) echo 'usage:chrootpre -d chrootdir'
+		;;
+	esac
+done
+
+if [ "$chrootdir" = "" ];then
+	echo usage:chrootpre -d chrootdir
+	exit
+fi
+if [ ! -d $chrootdir ];then
+	echo "the dir >$chrootdir< doesn't exists"
+	exit
+fi
+mount -o bind /proc $chrootdir/proc
+mount -o bind /dev $chrootdir/dev
+mount -o bind /sys $chrootdir/sys

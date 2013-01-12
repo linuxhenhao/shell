@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+if [ $(synclient -l|grep -i touchpadoff|grep 1|wc -L) -eq 0 ];then
+	synclient touchpadoff=1
+else
+	synclient touchpadoff=0
+fi

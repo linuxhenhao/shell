@@ -1,0 +1,188 @@
+#!/bin/bash
+###This shell script used to backup the data of mysql and wordpress
+DEFAULT_PATH_WP=/home/huangyu/workspace/wordpress
+DEFAULT_DB=yage
+DEFAULT_DB_USER=yage
+PASSWD=hy901014
+BACK_PATH=$HOME
+FILE_NAME=wp_backup_
+LAST_NUM=""
+BAK_NUM=5
+
+function default_info()
+{
+	local num;
+	cat >&1<<EOF
+_______________________________________________________
+[1]  DEFAULT_PATH_WP=$DEFAULT_PATH_WP
+	//the path of wordpress dir
+[2]  DEFAULT_DB=$DEFAULT_DB
+	//default database name
+[3]  DEFAULT_DB_USER=$DEFAULT_DB_USER
+	//default database user name
+[4]  PASSWD=$PASSWD
+	//default pass word of db user
+[5]  BACK_PATH=$BACK_PATH
+	//default path to save backup file
+[6]  BAK_NUM=$BAK_NUM
+	//how many day's data you want to save
+-------------------------------------------------------
+EOF
+        read -t 10  -p "There is the default value,if you want to change please enter the number in 5 seconds,or just press ENTER:"  num    ###read from terminal in limited time
+	return $num;
+}
+
+function get_var()
+{
+	local var var1
+	var=`grep $1 $2`
+	var1=`echo ${var#*=}`
+	case $1 in
+	DEFAULT_PATH_WP= )
+			DEFAULT_PATH_WP=$var1
+			;;
+	DEFAULT_DB=      )
+			DEFAULT_DB=$var1
+			;;
+	DEFAULT_DB_USER= )
+			DEFAULT_DB_USER=$var1
+			;;
+	PASSWD=		)
+			PASSWD=$var1
+			;;
+	BACK_PATH=	)
+			BACK_PATH=$var1
+			;;
+	BAK_NUM=		)
+			BAK_NUM=$var1
+			;;
+	*		)
+			;;
+	esac
+}
+function wp_init()
+{
+	local var ;
+	var=$HOME/.backup_wp/wp_tar_statu 
+	[ -d $HOME/.backup_wp ] || mkdir $HOME/.backup_wp
+	[ -f $var ] || touch $var
+	[ ! `grep DEFAULT_PATH_WP= $var|wc -L` -eq 0 ] || echo DEFAULT_PATH_WP=$DEFAULT_PATH_WP >> $var
+	[ ! `grep DEFAULT_DB= $var| wc -L` -eq 0 ] || echo DEFAULT_DB=$DEFAULT_DB   >> $var
+	[ ! `grep DEFAULT_DB_USER= $var | wc -L` -eq 0 ] || echo DEFAULT_DB_USER=$DEFAULT_DB_USER >>$var
+	[ ! `grep PASSWD= $var | wc -L` -eq 0 ] || echo PASSWD=$PASSWD >>$var
+	[ ! `grep BACK_PATH= $var | wc -L` -eq 0 ] || echo BACK_PATH=$BACK_PATH  >> $var
+	[ ! `grep FILE_NAME= $var | wc -L` -eq 0 ] || echo FILE_NAME=$FILE_NAME  >> $var
+	[ ! `grep BAK_NUM= $var | wc -L` -eq 0 ] || echo BAK_NUM=$BAK_NUM >> $var
+	get_var DEFAULT_PATH_WP= $var
+	get_var DEFAULT_DB= $var
+	get_var DEFAULT_DB_USER= $var
+	get_var PASSWD= $var
+	get_var BACK_PATH= $var
+	get_var FILE_NAME= $var
+	get_var BAK_NUM= $var
+	
+}
+
+function bw_next_bak_num()
+{
+	local i=1 file k tmp tmp1;
+	tmp=`date +%F`
+	k=`expr length ${FILE_NAME}_${tmp}`
+	for file in `ls $BACK_PATH |grep ${FILE_NAME}`;
+		do
+			echo "in for loop ,$file"
+			tmp1=`echo $file | cut -c $(($k+1))-`
+			tmp=`echo $tmp1 | cut -d "." -f1`
+			if [ $tmp -gt $i ];then
+				i=$tmp;  
+			fi
+		done
+	i=$(($i+1)) #next so plus 1
+	return $i
+}
+
+#### this statu_bw must use before tar_backup
+function statu_bw()
+{
+	echo "statu_bw"
+	local var=$HOME/.backup_wp/wp_tar_statu 
+	LAST_NUM=`grep num $var | awk '{ print $2 }'`
+}
+
+function bw_echo()
+{
+	local dir=$HOME/.backup_wp/
+	local file=${dir}wp_tar_statu
+	[ ! `grep num $file| wc -L` -eq 0 ]|| echo "num $1" >> $file
+	sed -i '/num/d' $file
+	echo "num $1" >> $file
+}
+
+
+function mydb_backup()
+{
+	mysqldump -u $DEFAULT_DB_USER -p$PASSWD $DEFAULT_DB > /tmp/yage.sql
+}
+
+
+function tar_backup()
+{
+	local i=1;
+	if [ ! `grep num $HOME/.backup_wp/wp_tar_statu|wc -L` -eq 0 ]; then
+		statu_bw
+		i=$(($LAST_NUM+1))
+		[ ! $LAST_NUM -ge $BAK_NUM ] || i=1
+		bw_echo $i
+	else
+		bw_next_bak_num
+		i=$?
+		if [ $i -ge $BAK_NUM ];then
+			echo "only save $BAK_NUM backup tarball"
+					i=1
+					bw_echo 1	
+		fi
+	fi
+	if [ ! -d $DEFAULT_PATH_WP ]; then
+		echo "$DEFAULT_PATH_WP doesn't exist."
+		echo "Plese input you path like \"/home/wordpress\""
+		read DEFAULT_PATH_WP	
+	fi
+	tar -cpjf $BACK_PATH/${FILE_NAME}`date +%F`_${i}.tar.bz2 $DEFAULT_PATH_WP /tmp/yage.sql >/dev/null 2>&1
+	echo "tarball ${FILE_NAME}`date +%F`_${i}.tar.gz  build successe!"
+	
+}
+
+function change_df()
+{
+	default_info
+	local var=$?
+	case "$var" in
+	1 )
+		read -p "Please input your wordpress dir:" DEFAULT_PATH_WP
+			;;
+	2 )
+		read -p "Your database name:" DEFAULT_DB
+			;;
+	3 )
+		read -p "Your database user name:" DEFAULT_DB_USER
+			;;
+	4 )
+		read -p "Your database pass word:" PASSWD
+			;;
+	5 )
+		read -p "Your path to save your backup file:" BACK_PATH
+			;;
+	6 )     
+		read -p "The number of day's data you want to save:" BAK_NUM
+			;;
+	* )
+		echo -e "\nUse default setting."
+		;;
+	esac
+}
+
+wp_init
+change_df
+mydb_backup
+tar_backup
+exit 0

@@ -1,0 +1,11 @@
+#!/bin/bash
+dir=$HOME
+filename=$(date +%b-%d-%R:%S)
+i=0
+while [  -f $dir/$filename.png ];
+do
+	i=$(($i+1))
+	filename=$filename$i.png;
+done
+import -pause 0 $dir/"$filename.png"
+feh $dir/"$filename.png"
