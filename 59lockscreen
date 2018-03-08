@@ -1,0 +1,13 @@
+#!/bin/bash
+case $1 in
+	hibernate|suspend)
+		slock &
+		echo success
+		;;
+	thaw|resume)
+		echo success
+		;;
+	*)
+		;;
+esac
+

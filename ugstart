@@ -1,0 +1,16 @@
+#!/bin/bash
+#enable other X access  
+xhost +
+
+#start plmlicense server
+if [ -f /var/tmp/lockugslmd ];then
+	echo "license server already started ..."	 
+else
+	cd ${UGII_BASE_DIR}/Siemens/PLMLicenseServer
+	sudo su -c './lmgrd -c splm6.lic' splm
+fi
+
+sleep 3
+#start ug menu
+cd ${UGII_ROOT_DIR}
+./ugmenu

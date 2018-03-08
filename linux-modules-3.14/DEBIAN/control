@@ -1,0 +1,6 @@
+Package: linux-moudles-3.14
+Version: 3.14
+Architecture: amd64
+Depends: linux-image-3.14
+Maintainer: huangyu<diwang90@gmail.com>
+Description: linux kernel modules

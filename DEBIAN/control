@@ -1,0 +1,7 @@
+Package: name
+Version: 1
+Architecture: amd64
+Maintainer: huangyu<diwang90@gmail.com>
+Depends: 
+Homepage: http://diwang90.tk/
+Description: 

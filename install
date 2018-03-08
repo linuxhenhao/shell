@@ -1,0 +1,65 @@
+#!/bin/bash
+
+
+function GetArch()
+{
+	if [ $(uname -m) == "x86_64" ];then
+		echo "amd64"
+	else
+		echo "i386"
+	fi
+}
+
+
+
+function DirCheck()
+{
+	if [ ! -d $1 ];then
+		mkdir -p $1
+	fi
+}
+
+VERSION=3.14
+INSTALL_PATH=./linux-$VERSION/boot/
+INSTALL_MOD_PATH=./linux-modules-$VERSION/lib/
+IMG_DIR=./linux-$VERSION
+MOD_DIR=./linux-modules-$VERSION
+ARCH=$( GetArch )
+
+DirCheck ${IMG_DIR}/boot
+DirCheck ${IMG_DIR}/DEBIAN
+DirCheck ${MOD_DIR}/lib
+DirCheck ${MOD_DIR}/DEBIAN
+rm -rf ${INSTALL_PATH}/*
+rm -rf ${INSTALL_MOD_PATH}/*
+
+cat >./${IMG_DIR}/DEBIAN/control<<EOF
+Package: linux-image-$VERSION
+Version: $VERSION
+Architecture: $ARCH
+Depends: 
+Maintainer: huangyu<diwang90@gmail.com>
+Description: linux kernel
+EOF
+
+cat >./${MOD_DIR}/DEBIAN/control<<EOF
+Package: linux-moudles-$VERSION
+Version: $VERSION
+Architecture: $ARCH
+Depends: linux-image-$VERSION
+Maintainer: huangyu<diwang90@gmail.com>
+Description: linux kernel modules
+EOF
+
+cat >./${MOD_DIR}/DEBIAN/postinst<<EOF
+\#!/bin/bash
+update-grub
+EOF
+
+chmod 0555 ./${MOD_DIR}/DEBIAN/postinst
+
+INSTALL_PATH=./${IMG_DIR}/boot/ make install
+INSTALL_MOD_PATH=./${MOD_DIR}/ make modules_install
+
+dpkg -b ${IMG_DIR}
+dpkg -b ${MOD_DIR}

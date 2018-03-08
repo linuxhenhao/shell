@@ -1,0 +1,2 @@
+#!/bin/bash
+chromium --ignore-certificate-errors --allow-running-insecure-content
