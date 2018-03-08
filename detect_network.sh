@@ -1,6 +1,6 @@
 #!/bin/bash
-profile='/opt/gappproxy/proxy.ini'
-ip_server="ipdetect.dnspark.com"
+profile='/opt/goagent/proxy.ini'
+ip_server="ipv6.google.com"
 ip_line="address"
 set=$(grep profile\ =  $profile);
 
@@ -31,13 +31,11 @@ function statu()
 
 function protocal_detect()
 {
-	ip=$(wget -O- $ip_server 2>/dev/null |grep -i $ip_line|cut -d " " -f3);
-	if [ -z $ip ];then
-		echo get ip error;
-	fi
-	if [  $(echo $ip|grep :|wc -L) -gt 0 ];then
+	ping6 -c 2 $ip_server >/dev/null 2>&1
+	
+	if [ $? -eq 0 ];then
 		echo ipv6;
-	else 
+	else
 		echo ipv4;
 	fi
 }

@@ -36,8 +36,8 @@ done
 ( [ "$essid" == "" ] || [ "$pass" == "" ] ) && usage $0 
 wpa_passphrase $essid $pass > /tmp/$tmpfile;
 if [ "$(prog_stat wpa_supplicant)" == "ON" ];then
-	echo wpa_supplicant is on,please check!
-	exit 2;
+	kill $(pidof wpa_supplicant)
+	echo wpa_supplicant is on,killing it!
 fi
 echo "wpa connecting...."
 sudo wpa_supplicant -B -iwlan0 -c /tmp/$tmpfile -Dnl80211

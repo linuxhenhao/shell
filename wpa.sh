@@ -27,5 +27,7 @@ if [ "$(prog_stat wpa_supplicant)" == "ON" ];then
 fi
 echo "wpa connecting...."
 sudo wpa_supplicant -B -iwlan0 -c /tmp/$tmpfile -Dnl80211
-echo "dhcp getting...."
-dhclient -cf /etc/dhcp/dhclient.conf wlan0
+echo "config wlan0"
+#dhclient -cf /etc/dhcp/dhclient.conf wlan0
+ifconfig wlan0 192.168.1.138 netmask 255.255.255.0
+route add default gw 192.168.1.1

@@ -3,7 +3,7 @@
 
 IPTABLES=/sbin/iptables
 P_CARD=usb0
-output_card=eth0
+output_card=wlan0
 P_IP="192.168.0.1"
 
 if [ ! $(id -u) -eq 0 ];then 
@@ -29,7 +29,7 @@ echo 1 > /proc/sys/net/ipv4/ip_forward
 ###end of start ipv4 forward
 
 ###use iptable nat to forward data
-$IPTABLES -t nat -A POSTROUTING -s $P_IP/16 -o $output_card -j MASQUERADE
+$IPTABLES -t nat -A POSTROUTING -s $P_IP/24 -o $output_card -j MASQUERADE
 ###SET iptalbes finished 
 }
 #get_phone_ip
